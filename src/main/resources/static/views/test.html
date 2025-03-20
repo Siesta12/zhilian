@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农产品智能仓储与物流系统 - 管理后台</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- Feather Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <style>
+        /* 自定义样式 */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* 动画效果 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边导航 -->
+        <div id="sidebar" class="bg-slate-800 text-white w-64 transition-all duration-300 ease-in-out">
+            <div class="flex items-center justify-between p-4 border-b border-slate-700">
+                <h1 class="text-xl font-bold">农产品智能系统</h1>
+                <button id="toggle-sidebar" class="p-1 rounded-full hover:bg-slate-700">
+                    <i data-feather="menu"></i>
+                </button>
+            </div>
+            
+            <nav class="mt-6">
+                <div class="nav-item flex items-center px-4 py-3 bg-blue-600 cursor-pointer" data-tab="dashboard">
+                    <i data-feather="home" class="mr-4"></i>
+                    <span>仪表盘</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="storage">
+                    <i data-feather="thermometer" class="mr-4"></i>
+                    <span>仓储监控</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="inventory">
+                    <i data-feather="package" class="mr-4"></i>
+                    <span>库存管理</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="quality">
+                    <i data-feather="activity" class="mr-4"></i>
+                    <span>质量监测</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="logistics">
+                    <i data-feather="truck" class="mr-4"></i>
+                    <span>物流调度</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="analytics">
+                    <i data-feather="bar-chart-2" class="mr-4"></i>
+                    <span>数据分析</span>
+                </div>
+                
+                <div class="nav-item flex items-center px-4 py-3 hover:bg-slate-700 cursor-pointer" data-tab="settings">
+                    <i data-feather="settings" class="mr-4"></i>
+                    <span>系统设置</span>
+                </div>
+            </nav>
+            
+            <div class="absolute bottom-0 w-full border-t border-slate-700">
+                <div class="flex items-center p-4 hover:bg-slate-700 cursor-pointer">
+                    <i data-feather="user" class="mr-4"></i>
+                    <span>用户信息</span>
+                </div>
+                <div class="flex items-center p-4 hover:bg-slate-700 cursor-pointer">
+                    <i data-feather="log-out" class="mr-4"></i>
+                    <span>退出登录</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="flex-1 overflow-auto">
+            <!-- 顶部导航条 -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center space-x-4">
+                        <h1 id="page-title" class="text-xl font-bold text-gray-800">系统仪表盘</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索..." class="px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i data-feather="search" class="absolute right-3 top-2.5 text-gray-400" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        
+                        <div class="relative">
+                            <button class="relative p-2 rounded-full hover:bg-gray-100">
+                                <i data-feather="alert-triangle" class="text-gray-600"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                    3
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                                A
+                            </div>
+                            <span class="text-gray-700">管理员</span>
+                            <i data-feather="chevron-down" class="text-gray-500" style="width: 16px; height: 16px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- 主要内容 -->
+            <main class="p-6">
+                <!-- 仪表盘 -->
+                <div id="dashboard" class="tab-content space-y-6 fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-blue-100 p-3 mr-4">
+                                <i data-feather="package" class="text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">当前库存量</p>
+                                <p class="text-2xl font-bold">1,420 kg</p>
+                                <p class="text-xs text-green-500 flex items-center">
+                                    <i data-feather="trending-up" style="width: 12px; height: 12px;" class="mr-1"></i> 12% 较上周
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-green-100 p-3 mr-4">
+                                <i data-feather="truck" class="text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">今日配送量</p>
+                                <p class="text-2xl font-bold">28 单</p>
+                                <p class="text-xs text-green-500 flex items-center">
+                                    <i data-feather="trending-up" style="width: 12px; height: 12px;" class="mr-1"></i> 5% 较昨日
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                                <i data-feather="alert-triangle" class="text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">质量预警</p>
+                                <p class="text-2xl font-bold">3 项</p>
+                                <p class="text-xs text-red-500 flex items-center">
+                                    <i data-feather="trending-up" style="width: 12px; height: 12px;" class="mr-1"></i> 2 项新增
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-purple-100 p-3 mr-4">
+                                <i data-feather="bar-chart-2" class="text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">当前损耗率</p>
+                                <p class="text-2xl font-bold">4.8%</p>
+                                <p class="text-xs text-green-500 flex items-center">
+                                    <i data-feather="trending-down" style="width: 12px; height: 12px;" class="mr-1"></i> 下降 10.2%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">仓储环境监测</h2>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>今日</option>
+                                    <option>本周</option>
+                                    <option>本月</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="storageChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">损耗率对比</h2>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>近6个月</option>
+                                    <option>今年</option>
+                                    <option>去年</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="lossRateChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">预警信息</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center border-b pb-3">
+                                    <div class="rounded-full bg-yellow-100 p-2 mr-3">
+                                        <i data-feather="alert-triangle" style="width: 16px; height: 16px;" class="text-yellow-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">温度异常</p>
+                                        <p class="text-sm text-gray-500">1号冷库 • 2小时前</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center border-b pb-3">
+                                    <div class="rounded-full bg-yellow-100 p-2 mr-3">
+                                        <i data-feather="alert-triangle" style="width: 16px; height: 16px;" class="text-yellow-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">库存预警</p>
+                                        <p class="text-sm text-gray-500">西红柿 • 4小时前</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center border-b pb-3">
+                                    <div class="rounded-full bg-yellow-100 p-2 mr-3">
+                                        <i data-feather="alert-triangle" style="width: 16px; height: 16px;" class="text-yellow-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">质量异常</p>
+                                        <p class="text-sm text-gray-500">黄瓜 • 1天前</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="mt-4 text-blue-600 text-sm flex items-center">
+                                查看全部警报 <i data-feather="chevron-down" style="width: 14px; height: 14px;" class="ml-1"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">即将到期产品</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between border-b pb-3">
+                                    <div class="flex items-center">
+                                        <div class="rounded-full bg-red-100 p-2 mr-3">
+                                            <i data-feather="clock" style="width: 16px; height: 16px;" class="text-red-500"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">西红柿</p>
+                                            <p class="text-sm text-gray-500">剩余 2 天 • 35 kg</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-blue-600 text-sm">处理</button>
+                                </div>
+                                
+                                <div class="flex items-center justify-between border-b pb-3">
+                                    <div class="flex items-center">
+                                        <div class="rounded-full bg-red-100 p-2 mr-3">
+                                            <i data-feather="clock" style="width: 16px; height: 16px;" class="text-red-500"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">黄瓜</p>
+                                            <p class="text-sm text-gray-500">剩余 3 天 • 42 kg</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-blue-600 text-sm">处理</button>
+                                </div>
+                                
+                                <div class="flex items-center justify-between border-b pb-3">
+                                    <div class="flex items-center">
+                                        <div class="rounded-full bg-red-100 p-2 mr-3">
+                                            <i data-feather="clock" style="width: 16px; height: 16px;" class="text-red-500"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium">生菜</p>
+                                            <p class="text-sm text-gray-500">剩余 4 天 • 28 kg</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-blue-600 text-sm">处理</button>
+                                </div>
+                            </div>
+                            <button class="mt-4 text-blue-600 text-sm flex items-center">
+                                查看全部到期产品 <i data-feather="chevron-down" style="width: 14px; height: 14px;" class="ml-1"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">设施分布</h2>
+                            <div class="chart-container">
+                                <canvas id="facilityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 仓储监控 -->
+                <div id="storage" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">1号冷库</h2>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">正常</span>
+                            </div>
+                            <div class="flex justify-between mb-6">
+                                <div class="text-center">
+                                    <i data-feather="thermometer" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">温度</p>
+                                    <p class="text-xl font-bold">4.2°C</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="droplet" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">湿度</p>
+                                    <p class="text-xl font-bold">85%</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="box" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">占用率</p>
+                                    <p class="text-xl font-bold">75%</p>
+                                </div>
+                            </div>
+                            <div class="chart-container h-40">
+                                <canvas id="storage1Chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">2号冷库</h2>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">正常</span>
+                            </div>
+                            <div class="flex justify-between mb-6">
+                                <div class="text-center">
+                                    <i data-feather="thermometer" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">温度</p>
+                                    <p class="text-xl font-bold">3.8°C</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="droplet" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">湿度</p>
+                                    <p class="text-xl font-bold">82%</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="box" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">占用率</p>
+                                    <p class="text-xl font-bold">60%</p>
+                                </div>
+                            </div>
+                            <div class="chart-container h-40">
+                                <canvas id="storage2Chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">3号常温库</h2>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">预警</span>
+                            </div>
+                            <div class="flex justify-between mb-6">
+                                <div class="text-center">
+                                    <i data-feather="thermometer" class="mx-auto text-red-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">温度</p>
+                                    <p class="text-xl font-bold">26.5°C</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="droplet" class="mx-auto text-yellow-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">湿度</p>
+                                    <p class="text-xl font-bold">70%</p>
+                                </div>
+                                <div class="text-center">
+                                    <i data-feather="box" class="mx-auto text-blue-500 mb-2"></i>
+                                    <p class="text-gray-500 text-sm">占用率</p>
+                                    <p class="text-xl font-bold">90%</p>
+                                </div>
+                            </div>
+                            <div class="chart-container h-40">
+                                <canvas id="storage3Chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">环境历史记录</h2>
+                            <div class="flex space-x-2">
+                                <select class="border rounded p-1 text-sm">
+                                    <option>今日</option>
+                                    <option>本周</option>
+                                    <option>本月</option>
+                                </select>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>所有仓库</option>
+                                    <option>1号冷库</option>
+                                    <option>2号冷库</option>
+                                    <option>3号常温库</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container h-80">
+                            <canvas id="storageHistoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 库存管理 -->
+                <div id="inventory" class="tab-content space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">库存概览</h2>
+                            <div class="flex space-x-2">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center text-sm">
+                                    <i data-feather="package" style="width: 14px; height: 14px;" class="mr-1"></i> 添加库存
+                                </button>
+                                <button class="border border-gray-300 text-gray-700 px-3 py-1 rounded-lg flex items-center text-sm">
+                                    导出报表
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            农产品
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            数量 (kg)
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            入库日期
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            保质期
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            状态
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            苹果
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            520
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-01
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            15天后到期
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                正常
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-red-600 hover:text-red-800">出库</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            梨
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            350
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-02
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            12天后到期
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                正常
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-red-600 hover:text-red-800">出库</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            西红柿
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            120
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-13
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2天后到期
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                预警
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-red-600 hover:text-red-800">出库</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-4">
+                            <p class="text-sm text-gray-500">显示 1 - 3 共 6 项</p>
+                            <div class="flex space-x-1">
+                                <button class="px-3 py-1 border rounded text-sm">上一页</button>
+                                <button class="px-3 py-1 border rounded bg-blue-600 text-white text-sm">1</button>
+                                <button class="px-3 py-1 border rounded text-sm">2</button>
+                                <button class="px-3 py-1 border rounded text-sm">下一页</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">库存分布</h2>
+                            <div class="chart-container h-64">
+                                <canvas id="inventoryPieChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">空间利用率</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">1号冷库</span>
+                                        <span class="text-sm font-medium">75%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">2号冷库</span>
+                                        <span class="text-sm font-medium">60%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium">3号常温库</span>
+                                        <span class="text-sm font-medium">90%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-red-600 h-2.5 rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 质量监测 -->
+                <div id="quality" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-green-100 p-3 mr-4">
+                                <i data-feather="activity" class="text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">检测完成</p>
+                                <p class="text-2xl font-bold">1,280 kg</p>
+                                <p class="text-xs text-green-500">今日农产品</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-blue-100 p-3 mr-4">
+                                <i data-feather="check-circle" class="text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">A级品质</p>
+                                <p class="text-2xl font-bold">68%</p>
+                                <p class="text-xs text-green-500">高于上周5%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                                <i data-feather="alert-triangle" class="text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">质量异常</p>
+                                <p class="text-2xl font-bold">3 批次</p>
+                                <p class="text-xs text-red-500">需人工复检</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-purple-100 p-3 mr-4">
+                                <i data-feather="clock" class="text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">平均保质期</p>
+                                <p class="text-2xl font-bold">10.8 天</p>
+                                <p class="text-xs text-green-500">提升2.3天</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">农产品质量检测结果</h2>
+                            <div class="flex space-x-2">
+                                <select class="border rounded p-1 text-sm">
+                                    <option>所有产品</option>
+                                    <option>水果类</option>
+                                    <option>蔬菜类</option>
+                                    <option>根茎类</option>
+                                </select>
+                                <button class="border border-gray-300 text-gray-700 px-3 py-1 rounded-lg flex items-center text-sm">
+                                    导出报表
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            农产品
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            品质等级
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            新鲜度 (%)
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            预计保质期 (天)
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            检测时间
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            苹果
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                A级
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div class="flex items-center">
+                                                <span class="mr-2">95%</span>
+                                                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-green-600 h-2.5 rounded-full" style="width: 95%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            14
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-15
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-green-600 hover:text-green-800">溯源</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            西红柿
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                B级
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div class="flex items-center">
+                                                <span class="mr-2">85%</span>
+                                                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            5
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-14
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-green-600 hover:text-green-800">溯源</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">新鲜度趋势</h2>
+                            <div class="chart-container h-64">
+                                <canvas id="freshnessChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">质量分布</h2>
+                            <div class="chart-container h-64">
+                                <canvas id="qualityPieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 物流调度 -->
+                <div id="logistics" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-blue-100 p-3 mr-4">
+                                <i data-feather="truck" class="text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">今日配送</p>
+                                <p class="text-2xl font-bold">28 单</p>
+                                <p class="text-xs text-green-500">按时完成率 95%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-green-100 p-3 mr-4">
+                                <i data-feather="trending-up" class="text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">装载率</p>
+                                <p class="text-2xl font-bold">85%</p>
+                                <p class="text-xs text-green-500">高于目标10%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-purple-100 p-3 mr-4">
+                                <i data-feather="map" class="text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">配送里程</p>
+                                <p class="text-2xl font-bold">487 km</p>
+                                <p class="text-xs text-green-500">节省18.7%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                            <div class="rounded-full bg-yellow-100 p-3 mr-4">
+                                <i data-feather="clock" class="text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 text-sm">平均配送时间</p>
+                                <p class="text-2xl font-bold">2.4 小时</p>
+                                <p class="text-xs text-green-500">提前0.8小时</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">配送任务</h2>
+                            <div class="flex space-x-2">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center text-sm">
+                                    <i data-feather="truck" style="width: 14px; height: 14px;" class="mr-1"></i> 新建配送
+                                </button>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>所有状态</option>
+                                    <option>配送中</option>
+                                    <option>已完成</option>
+                                    <option>已取消</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            任务编号
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            目的地
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            产品种类
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            总重量 (kg)
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            状态
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            预计送达
+                                        </th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            L001
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            哈尔滨市场
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            5
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            120
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                已送达
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-15 10:00
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-green-600 hover:text-green-800">跟踪</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            L002
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            长春批发市场
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            8
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            240
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                运输中
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            2025-03-16 11:00
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-3">详情</button>
+                                            <button class="text-green-600 hover:text-green-800">跟踪</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">配送效率分析</h2>
+                            <div class="chart-container h-64">
+                                <canvas id="logisticsEfficiencyChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">物流成本对比</h2>
+                            <div class="chart-container h-64">
+                                <canvas id="logisticsCostChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据分析 -->
+                <div id="analytics" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6 col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">农产品损耗率分析</h2>
+                                <div class="flex space-x-2">
+                                    <select class="border rounded p-1 text-sm">
+                                        <option>近6个月</option>
+                                        <option>近12个月</option>
+                                        <option>近2年</option>
+                                    </select>
+                                    <button class="border border-gray-300 text-gray-700 px-3 py-1 rounded-lg flex items-center text-sm">
+                                        导出数据
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-container h-80">
+                                <canvas id="lossRateAnalysisChart"></canvas>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                                <div class="p-3 bg-blue-50 rounded-lg">
+                                    <p class="text-sm text-gray-600">平均损耗率降低</p>
+                                    <p class="text-xl font-bold text-blue-600">66.3%</p>
+                                </div>
+                                <div class="p-3 bg-green-50 rounded-lg">
+                                    <p class="text-sm text-gray-600">年节约成本</p>
+                                    <p class="text-xl font-bold text-green-600">45.2万元</p>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg">
+                                    <p class="text-sm text-gray-600">投资回报率</p>
+                                    <p class="text-xl font-bold text-purple-600">285%</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-bold text-gray-800 mb-4">关键指标趋势</h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-sm font-medium">损耗率</p>
+                                        <p class="text-sm font-medium text-green-600">4.8%</p>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 32%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">目标: 5.0% | <span class="text-green-600">已达成</span></p>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-sm font-medium">库存周转率</p>
+                                        <p class="text-sm font-medium text-green-600">6.2次/月</p>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-green-600 h-2.5 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">目标: 6.0次/月 | <span class="text-green-600">已达成</span></p>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-sm font-medium">物流成本</p>
+                                        <p class="text-sm font-medium text-yellow-600">0.58元/kg</p>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-yellow-600 h-2.5 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">目标: 0.55元/kg | <span class="text-yellow-600">接近达成</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">物流成本分析</h2>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>近6个月</option>
+                                    <option>近12个月</option>
+                                </select>
+                            </div>
+                            <div class="chart-container h-64">
+                                <canvas id="costAnalysisChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-gray-800">用户满意度分析</h2>
+                                <select class="border rounded p-1 text-sm">
+                                    <option>农户</option>
+                                    <option>合作社</option>
+                                    <option>消费者</option>
+                                </select>
+                            </div>
+                            <div class="chart-container h-64">
+                                <canvas id="satisfactionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 系统设置 -->
+                <div id="settings" class="tab-content space-y-6 hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">系统设置</h2>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center pb-4 border-b">
+                                <h3 class="font-medium">系统信息</h3>
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center text-sm">
+                                    检查更新
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">系统版本</p>
+                                    <p class="text-sm font-medium">v2.3.5</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">上次更新</p>
+                                    <p class="text-sm font-medium">2025-03-01</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">服务器状态</p>
+                                    <p class="text-sm font-medium text-green-600">运行中</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">数据库状态</p>
+                                    <p class="text-sm font-medium text-green-600">运行中</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center pb-4 border-b">
+                                <h3 class="font-medium">AI模型配置</h3>
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center text-sm">
+                                    保存配置
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">质量识别模型选择</label>
+                                    <select class="w-full p-2 border rounded">
+                                        <option>农产品通用模型 v2.1</option>
+                                        <option>水果专用模型 v1.8</option>
+                                        <option>蔬菜专用模型 v1.5</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">物流路径优化算法</label>
+                                    <select class="w-full p-2 border rounded">
+                                        <option>改进蚁群算法 v3.0</option>
+                                        <option>启发式路径规划 v2.5</option>
+                                        <option>标准最短路径算法</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">AI 识别准确度阈值</label>
+                                    <div class="flex items-center">
+                                        <input type="range" min="0" max="100" class="flex-grow" value="85">
+                                        <span class="ml-2 text-sm">85%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center pb-4 border-b">
+                                <h3 class="font-medium">通知设置</h3>
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center text-sm">
+                                    保存配置
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4 mt-4">
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                        <span class="ml-2 text-sm text-gray-700">质量异常通知</span>
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                        <span class="ml-2 text-sm text-gray-700">库存预警通知</span>
+                                    </label>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                        <span class="ml-2 text-sm text-gray-700">物流配送状态通知</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化Feather图标
+        feather.replace();
+        
+        // 标签页切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const pageTitle = document.getElementById('page-title');
+            const titleMap = {
+                'dashboard': '系统仪表盘',
+                'storage': '智能仓储管理',
+                'inventory': '库存管理系统',
+                'quality': '农产品质量AI监测',
+                'logistics': '智慧物流配送网络',
+                'analytics': '数据分析中心',
+                'settings': '系统设置'
+            };
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 更新导航项样式
+                    navItems.forEach(nav => {
+                        nav.classList.remove('bg-blue-600');
+                        nav.classList.add('hover:bg-slate-700');
+                    });
+                    this.classList.add('bg-blue-600');
+                    this.classList.remove('hover:bg-slate-700');
+                    
+                    // 更新标签页内容
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        content.classList.remove('fade-in');
+                    });
+                    
+                    const selectedTab = document.getElementById(tabId);
+                    selectedTab.classList.remove('hidden');
+                    selectedTab.classList.add('fade-in');
+                    
+                    // 更新页面标题
+                    pageTitle.textContent = titleMap[tabId];
+                });
+            });
+            
+            // 折叠侧边栏
+            const toggleSidebar = document.getElementById('toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            
+            toggleSidebar.addEventListener('click', function() {
+                if (sidebar.classList.contains('w-64')) {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-16');
+                    
+                    // 隐藏菜单文本
+                    document.querySelectorAll('#sidebar span').forEach(span => {
+                        span.classList.add('hidden');
+                    });
+                } else {
+                    sidebar.classList.add('w-64');
+                    sidebar.classList.remove('w-16');
+                    
+                    // 显示菜单文本
+                    document.querySelectorAll('#sidebar span').forEach(span => {
+                        span.classList.remove('hidden');
+                    });
+                }
+            });
+            
+            // 渲染图表
+            renderCharts();
+        });
+        
+        // 渲染各种图表
+        function renderCharts() {
+            // 仓储环境监测图表
+            const storageCtx = document.getElementById('storageChart').getContext('2d');
+            new Chart(storageCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                    datasets: [
+                        {
+                            label: '温度 (°C)',
+                            data: [4.2, 4.0, 3.9, 4.5, 5.2, 5.0, 4.8, 4.3],
+                            borderColor: 'rgb(99, 102, 241)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.3,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '湿度 (%)',
+                            data: [85, 84, 83, 82, 81, 82, 84, 85],
+                            borderColor: 'rgb(52, 211, 153)',
+                            backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '温度 (°C)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '湿度 (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+            
+            // 损耗率对比图表
+            const lossRateCtx = document.getElementById('lossRateChart').getContext('2d');
+            new Chart(lossRateCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [
+                        {
+                            label: '使用系统前 (%)',
+                            data: [15.2, 14.8, 15.5, 14.9, 15.3, 15.0],
+                            backgroundColor: 'rgba(255, 128, 66, 0.7)',
+                        },
+                        {
+                            label: '使用系统后 (%)',
+                            data: [5.1, 5.3, 4.9, 5.0, 4.8, 4.7],
+                            backgroundColor: 'rgba(0, 136, 254, 0.7)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '损耗率 (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 设施分布饼图
+            const facilityCtx = document.getElementById('facilityChart').getContext('2d');
+            new Chart(facilityCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['冷藏仓库', '常温仓库', '分拣中心', '配送站点'],
+                    datasets: [{
+                        data: [45, 30, 15, 10],
+                        backgroundColor: [
+                            'rgba(0, 136, 254, 0.7)',
+                            'rgba(0, 196, 159, 0.7)',
+                            'rgba(255, 187, 40, 0.7)',
+                            'rgba(255, 128, 66, 0.7)'
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+            
+            // 仓库1温度图表
+            if(document.getElementById('storage1Chart')) {
+                const storage1Ctx = document.getElementById('storage1Chart').getContext('2d');
+                new Chart(storage1Ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '06:00', '12:00', '18:00'],
+                        datasets: [{
+                            label: '温度 (°C)',
+                            data: [4.2, 3.9, 5.2, 4.8],
+                            borderColor: 'rgb(99, 102, 241)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 2,
+                                max: 8
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 库存饼图
+            if(document.getElementById('inventoryPieChart')) {
+                const inventoryPieCtx = document.getElementById('inventoryPieChart').getContext('2d');
+                new Chart(inventoryPieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['苹果', '梨', '西红柿', '黄瓜', '西蓝花', '胡萝卜'],
+                        datasets: [{
+                            data: [520, 350, 120, 80, 200, 150],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 新鲜度趋势图
+            if(document.getElementById('freshnessChart')) {
+                const freshnessCtx = document.getElementById('freshnessChart').getContext('2d');
+                new Chart(freshnessCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['3-10', '3-11', '3-12', '3-13', '3-14', '3-15'],
+                        datasets: [
+                            {
+                                label: '苹果',
+                                data: [92, 93, 94, 95, 95, 95],
+                                borderColor: 'rgb(99, 102, 241)',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                tension: 0.3
+                            },
+                            {
+                                label: '梨',
+                                data: [89, 90, 91, 91, 92, 92],
+                                borderColor: 'rgb(52, 211, 153)',
+                                backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                                tension: 0.3
+                            },
+                            {
+                                label: '西红柿',
+                                data: [82, 84, 85, 85, 85, 85],
+                                borderColor: 'rgb(255, 128, 66)',
+                                backgroundColor: 'rgba(255, 128, 66, 0.1)',
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 80,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '新鲜度 (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 物流效率图表
+            if(document.getElementById('logisticsEfficiencyChart')) {
+                const logisticsEfficiencyCtx = document.getElementById('logisticsEfficiencyChart').getContext('2d');
+                new Chart(logisticsEfficiencyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['3-10', '3-11', '3-12', '3-13', '3-14', '3-15'],
+                        datasets: [
+                            {
+                                label: '配送效率 (%)',
+                                data: [85, 87, 89, 92, 93, 95],
+                                borderColor: 'rgb(99, 102, 241)',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                tension: 0.3,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: '燃油成本 (元/km)',
+                                data: [0.82, 0.81, 0.79, 0.77, 0.76, 0.75],
+                                borderColor: 'rgb(52, 211, 153)',
+                                backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                                tension: 0.3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                min: 80,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '配送效率 (%)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                min: 0.7,
+                                max: 0.9,
+                                title: {
+                                    display: true,
+                                    text: '燃油成本 (元/km)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 损耗率分析图表
+            if(document.getElementById('lossRateAnalysisChart')) {
+                const lossRateAnalysisCtx = document.getElementById('lossRateAnalysisChart').getContext('2d');
+                new Chart(lossRateAnalysisCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [
+                            {
+                                label: '使用系统前 (%)',
+                                data: [15.2, 14.8, 15.5, 14.9, 15.3, 15.0],
+                                backgroundColor: 'rgba(255, 128, 66, 0.7)',
+                            },
+                            {
+                                label: '使用系统后 (%)',
+                                data: [5.1, 5.3, 4.9, 5.0, 4.8, 4.7],
+                                backgroundColor: 'rgba(0, 136, 254, 0.7)',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '损耗率 (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 用户满意度分析饼图
+            if(document.getElementById('satisfactionChart')) {
+                const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
+                new Chart(satisfactionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['非常满意', '满意', '一般', '不满意'],
+                        datasets: [{
+                            data: [62, 28, 8, 2],
+                            backgroundColor: [
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(33, 150, 243, 0.7)',
+                                'rgba(255, 193, 7, 0.7)',
+                                'rgba(244, 67, 54, 0.7)'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

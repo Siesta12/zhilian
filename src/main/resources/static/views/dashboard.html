@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据概览</title>
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <script src="../scripts/loader.js"></script>
+    <style>
+        .main-content {
+            transition: margin-top 0.3s ease; /* 平滑过渡，与 header 和 sidebar 一致 */
+        }
+    </style>
+</head>
+<body>
+<div id="header"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div id="sidebar" class="col-lg-2"></div>
+        <!-- 主内容区域 -->
+        <div class="col-lg-10 py-4 px-4 main-content" style="margin-left: 250px;">
+            <div class="content-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">数据概览</h1>
+                    <div>
+                        <span class="text-muted me-2">数据更新时间: 2025-03-17 09:30</span>
+                        <button class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-download me-1"></i> 导出报表
+                        </button>
+                        <button class="btn btn-sm btn-success">
+                            <i class="fas fa-sync-alt me-1"></i> 刷新数据
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- 数据概览卡片 -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-xl-3 mb-4">
+                    <div class="stat-card" style="border-left-color: var(--primary-color);">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p>总库存</p>
+                                <h3>1,280 kg</h3>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-arrow-up me-1"></i>5.3%
+                                </span>
+                                <span class="text-muted ms-2">同比上周</span>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3 mb-4">
+                    <div class="stat-card" style="border-left-color: var(--info-color);">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p>平均质量合格率</p>
+                                <h3>89%</h3>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-arrow-up me-1"></i>2.4%
+                                </span>
+                                <span class="text-muted ms-2">同比上月</span>
+                            </div>
+                            <div class="stat-icon text-info">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3 mb-4">
+                    <div class="stat-card" style="border-left-color: var(--warning-color);">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p>预警事件</p>
+                                <h3>3 起</h3>
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-arrow-up me-1"></i>2
+                                </span>
+                                <span class="text-muted ms-2">较昨日</span>
+                            </div>
+                            <div class="stat-icon text-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3 mb-4">
+                    <div class="stat-card" style="border-left-color: var(--accent-color);">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <p>系统利用率</p>
+                                <h3>84.8%</h3>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-arrow-up me-1"></i>3.2%
+                                </span>
+                                <span class="text-muted ms-2">同比上月</span>
+                            </div>
+                            <div class="stat-icon" style="color: var(--accent-color);">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 图表部分 -->
+            <div class="row mb-4">
+                <div class="col-md-8 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                            <h5 class="card-title mb-0">仓储环境监测</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    最近7天
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#">今日</a></li>
+                                    <li><a class="dropdown-item" href="#">最近7天</a></li>
+                                    <li><a class="dropdown-item" href="#">最近30天</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="environmentChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">产品分布</h5>
+                        </div>
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <canvas id="productDistribution" height="260"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-bell text-warning me-2"></i>预警信息
+                            </h5>
+                            <a href="#" class="btn btn-sm btn-outline-secondary">查看全部</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">温度异常预警</h6>
+                                        <small class="text-danger">12分钟前</small>
+                                    </div>
+                                    <p class="mb-1">3号仓库温度超出安全范围，当前值: 28°C</p>
+                                    <small class="d-flex justify-content-between">
+                                        <span>已派遣技术人员处理</span>
+                                        <span class="badge bg-warning">处理中</span>
+                                    </small>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">产品接近保质期</h6>
+                                        <small class="text-warning">2小时前</small>
+                                    </div>
+                                    <p class="mb-1">苹果批次SN20240312还有10天到期</p>
+                                    <small class="d-flex justify-content-between">
+                                        <span>建议调整销售策略</span>
+                                        <span class="badge bg-info">需处理</span>
+                                    </small>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">库存量低预警</h6>
+                                        <small class="text-warning">8小时前</small>
+                                    </div>
+                                    <p class="mb-1">梨库存量不足，低于最低安全库存</p>
+                                    <small class="d-flex justify-content-between">
+                                        <span>建议补充库存</span>
+                                        <span class="badge bg-info">需处理</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clipboard-check text-success me-2"></i>近期检测结果
+                            </h5>
+                            <a href="#" class="btn btn-sm btn-outline-secondary">查看全部</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>产品</th>
+                                        <th>批次</th>
+                                        <th>质量</th>
+                                        <th>时间</th>
+                                        <th class="text-center">状态</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>苹果</td>
+                                        <td>SN20250316</td>
+                                        <td>优质</td>
+                                        <td>今天 09:15</td>
+                                        <td class="text-center"><span class="badge bg-success">通过</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>梨</td>
+                                        <td>SN20250316</td>
+                                        <td>良好</td>
+                                        <td>今天 10:30</td>
+                                        <td class="text-center"><span class="badge bg-success">通过</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>橙子</td>
+                                        <td>SN20250315</td>
+                                        <td>合格</td>
+                                        <td>昨天 16:45</td>
+                                        <td class="text-center"><span class="badge bg-warning">待优化</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>葡萄</td>
+                                        <td>SN20250315</td>
+                                        <td>优质</td>
+                                        <td>昨天 14:20</td>
+                                        <td class="text-center"><span class="badge bg-success">通过</span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-area text-success me-2"></i>销售趋势
+                            </h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary active">周</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">月</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">季</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">年</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="salesTrendChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-exchange-alt text-success me-2"></i>交易统计
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">交易分布</h6>
+                                <canvas id="transactionChart" height="200"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="mb-3">平台数据</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>总交易量:</span>
+                                    <span class="fw-bold">¥128,560</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>平均订单额:</span>
+                                    <span class="fw-bold">¥1,285</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>活跃用户:</span>
+                                    <span class="fw-bold">342</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>交易增长率:</span>
+                                    <span class="fw-bold text-success">+12.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // 环境监测图表
+    const envCtx = document.getElementById('environmentChart').getContext('2d');
+    const envChart = new Chart(envCtx, {
+        type: 'line',
+        data: {
+            labels: ['3/11', '3/12', '3/13', '3/14', '3/15', '3/16', '3/17'],
+            datasets: [
+                {
+                    label: '温度 (°C)',
+                    data: [22, 23, 22.5, 23.2, 24, 23.5, 22.8],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '湿度 (%)',
+                    data: [65, 63, 67, 68, 65, 64, 62],
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '二氧化碳 (ppm)',
+                    data: [420, 410, 430, 425, 415, 405, 410],
+                    borderColor: '#FF9800',
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    hidden: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { drawBorder: false } },
+                x: { grid: { display: false } }
+            },
+            interaction: { mode: 'nearest', axis: 'x', intersect: false }
+        }
+    });
+
+    // 产品分布图表
+    const prodCtx = document.getElementById('productDistribution').getContext('2d');
+    const prodChart = new Chart(prodCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['苹果', '梨', '橙子', '葡萄', '其他'],
+            datasets: [{
+                data: [35, 25, 20, 15, 5],
+                backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0', '#607D8B'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value}% (${percentage}kg)`;
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // 销售趋势图表
+    const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+    const salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+            datasets: [
+                {
+                    label: '本周销售额',
+                    data: [12500, 15200, 9800, 14300, 18500, 21200, 16800],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '上周销售额',
+                    data: [10200, 13500, 8900, 12800, 16200, 18500, 14300],
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('zh-CN', {
+                                    style: 'currency',
+                                    currency: 'CNY'
+                                }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '¥' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+                    }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 交易分布图表
+    const transCtx = document.getElementById('transactionChart').getContext('2d');
+    const transChart = new Chart(transCtx, {
+        type: 'pie',
+        data: {
+            labels: ['电商平台', '批发市场', '社区团购', '直营门店'],
+            datasets: [{
+                data: [45, 30, 15, 10],
+                backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#9C27B0'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+            }
+        }
+    });
+</script>
+<script>
+    loadFragment("header", "../templates/header_log.html");
+    loadFragment("sidebar", "../templates/sidebar.html");
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            const header = document.getElementById('header');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            if (!header || !sidebar || !mainContent) return;
+
+            // 获取导航栏高度
+            const nav = header.querySelector('.navbar');
+            const navHeight = nav ? nav.offsetHeight : header.offsetHeight;
+
+            // 定义正文内容的自定义顶部间距（向上调整）
+            const contentTopMargin = 34; // 将正文内容设置为距离顶部 20px，可调整
+
+            // 初始设置
+            sidebar.style.top = `${navHeight}px`; // 侧边栏位于导航栏下方
+            sidebar.style.height = `calc(100vh - ${navHeight}px)`;
+            mainContent.style.marginTop = `${contentTopMargin}px`; // 正文内容更靠近顶部
+
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > lastScrollTop && scrollTop > navHeight) {
+                    // 向下滚动且超过导航栏高度
+                    header.classList.add('header-hidden');
+                    sidebar.style.top = '0';
+                    sidebar.style.height = '100vh';
+                    mainContent.style.marginTop = '0';
+                } else {
+                    // 向上滚动或在顶部
+                    header.classList.remove('header-hidden');
+                    sidebar.style.top = `${navHeight}px`;
+                    sidebar.style.height = `calc(100vh - ${navHeight}px)`;
+                    mainContent.style.marginTop = `${contentTopMargin}px`;
+                }
+
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
+        }, 100);
+    });
+</script>
+</body>
+</html>

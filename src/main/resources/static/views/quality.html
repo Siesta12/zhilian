@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>质量监测</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <script src="../scripts/loader.js"></script>
+    <style>
+        .quality-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .quality-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .quality-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .result-item {
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .result-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: var(--primary-color);
+        }
+
+        .fruit-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .parameter-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+
+        .parameter-value {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .quality-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quality-metric-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .detection-screen {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .detection-result {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            background-color: rgba(76, 175, 80, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .detection-result:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .result-1 {
+            top: 50px;
+            left: 100px;
+        }
+
+        .result-2 {
+            top: 80px;
+            right: 120px;
+        }
+
+        .result-3 {
+            bottom: 60px;
+            left: 250px;
+        }
+
+        .detection-label {
+            background-color: rgba(76, 175, 80, 0.9);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .detection-confidence {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .spectrum-chart {
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .ai-model-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .ai-model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .model-accuracy {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #e9ecef;
+            margin-top: 5px;
+        }
+
+        .model-accuracy-bar {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .main-content {
+            transition: margin-top 0.3s ease; /* 平滑过渡，与 header 和 sidebar 一致 */
+        }
+    </style>
+</head>
+<body>
+<div id="header"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div id="sidebar" class="col-lg-2"></div>
+        <!-- 主要内容 -->
+        <div class="col-lg-10 py-4 px-4">
+            <div class="content-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-0">质量监测</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">首页</a></li>
+                                <li class="breadcrumb-item active">质量监测</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-filter me-1"></i> 苹果
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">苹果</a></li>
+                                <li><a class="dropdown-item" href="#">梨</a></li>
+                                <li><a class="dropdown-item" href="#">橙子</a></li>
+                                <li><a class="dropdown-item" href="#">葡萄</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">所有产品</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-success">
+                            <i class="fas fa-plus me-1"></i> 新增检测
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 质量监测概览卡片 -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 quality-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="quality-icon bg-success bg-opacity-25 text-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">今日检测批次</h6>
+                                    <h3 class="mb-0">28 批</h3>
+                                    <div class="small text-success">
+                                        <i class="fas fa-arrow-up me-1"></i>较昨日 +3 批
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 quality-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="quality-icon bg-info bg-opacity-25 text-info">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">平均合格率</h6>
+                                    <h3 class="mb-0">95.3%</h3>
+                                    <div class="small text-success">
+                                        <i class="fas fa-arrow-up me-1"></i>较上周 +2.1%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 quality-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="quality-icon bg-warning bg-opacity-25 text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">质量预警</h6>
+                                    <h3 class="mb-0">3 项</h3>
+                                    <div class="small text-danger">
+                                        <i class="fas fa-arrow-up me-1"></i>较昨日 +1 项
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 quality-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="quality-icon bg-primary bg-opacity-25 text-primary">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">模型准确率</h6>
+                                    <h3 class="mb-0">92.8%</h3>
+                                    <div class="small text-success">
+                                        <i class="fas fa-arrow-up me-1"></i>较上月 +1.5%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 目标检测与参数分析 -->
+            <div class="row mb-4">
+                <!-- 计算机视觉检测 -->
+                <div class="col-lg-7 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-camera me-2 text-success"></i>计算机视觉检测
+                            </h5>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-info me-2">批次: SN20250317-A</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        操作
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#">重新检测</a></li>
+                                        <li><a class="dropdown-item" href="#">下载报告</a></li>
+                                        <li><a class="dropdown-item" href="#">查看历史</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="detection-screen mb-3">
+                                <img src="https://via.placeholder.com/800x400?text=苹果批次检测图像" class="img-fluid" alt="苹果检测图像">
+
+                                <div class="detection-result result-1">
+                                    <span class="detection-label">优质苹果</span>
+                                    <span class="detection-confidence">置信度: 98.2%</span>
+                                </div>
+
+                                <div class="detection-result result-2">
+                                    <span class="detection-label">优质苹果</span>
+                                    <span class="detection-confidence">置信度: 97.5%</span>
+                                </div>
+
+                                <div class="detection-result result-3">
+                                    <span class="detection-label">轻微缺陷</span>
+                                    <span class="detection-confidence">置信度: 89.3%</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="mb-3">检测结果分布</h6>
+                                            <canvas id="detectionPieChart" height="180"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h6 class="mb-3">外观特征分析</h6>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>颜色一致性</span>
+                                                    <span>92%</span>
+                                                </div>
+                                                <div class="parameter-bar">
+                                                    <div class="parameter-value bg-success" style="width: 92%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>表面光洁度</span>
+                                                    <span>88%</span>
+                                                </div>
+                                                <div class="parameter-bar">
+                                                    <div class="parameter-value bg-success" style="width: 88%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>形状规则性</span>
+                                                    <span>85%</span>
+                                                </div>
+                                                <div class="parameter-bar">
+                                                    <div class="parameter-value bg-success" style="width: 85%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>尺寸均匀性</span>
+                                                    <span>78%</span>
+                                                </div>
+                                                <div class="parameter-bar">
+                                                    <div class="parameter-value bg-warning" style="width: 78%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 近红外光谱分析 -->
+                <div class="col-lg-5 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-line me-2 text-success"></i>近红外光谱分析
+                            </h5>
+                            <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>无损检测
+                                </span>
+                        </div>
+                        <div class="card-body">
+                            <br>
+                            <div class="spectrum-chart mb-4">
+                                <canvas id="spectrumChart" height="200"></canvas>
+                            </div>
+
+                            <br>
+
+                            <h6 class="mb-3">内部品质预测</h6>
+
+                            <br>
+
+                            <div class="row">
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">糖度</h6>
+                                                <span class="badge bg-success">优</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">14.2°</h3>
+                                                <small class="text-muted ms-2">±0.3°</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-success" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">酸度</h6>
+                                                <span class="badge bg-success">优</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">0.35%</h3>
+                                                <small class="text-muted ms-2">±0.05%</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-success" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">干物质含量</h6>
+                                                <span class="badge bg-info">良</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">15.8%</h3>
+                                                <small class="text-muted ms-2">±0.4%</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-info" style="width: 68%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">硬度</h6>
+                                                <span class="badge bg-success">优</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">7.8</h3>
+                                                <small class="text-muted ms-2">kg/cm²</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-success" style="width: 86%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 水分含量 -->
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">水分含量</h6>
+                                                <span class="badge bg-success">优</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">85.0%</h3>
+                                                <small class="text-muted ms-2">±0.5%</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-success" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 维生素C含量 -->
+                                <div class="col-sm-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">维生素C含量</h6>
+                                                <span class="badge bg-info">良</span>
+                                            </div>
+                                            <div class="d-flex align-items-end">
+                                                <h3 class="mb-0">30</h3>
+                                                <small class="text-muted ms-2">±2mg/100g</small>
+                                            </div>
+                                            <div class="parameter-bar mt-2">
+                                                <div class="parameter-value bg-info" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 检测历史与评价指标 -->
+            <div class="row mb-4">
+                <!-- 检测历史 -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-history me-2 text-success"></i>检测历史
+                            </h5>
+                            <div>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" placeholder="搜索批次号...">
+                                    <button class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>批次号</th>
+                                        <th>产品</th>
+                                        <th>检测时间</th>
+                                        <th>样本数</th>
+                                        <th>合格率</th>
+                                        <th>评级</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="examineHistoryBody">
+                                    <!-- 数据将动态插入此处 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span id="pageInfo" class="text-muted">显示 1-9 项</span>
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="changePage(-1)">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </button>
+                                        </li>
+                                        <li class="page-item active"><span class="page-link" id="currentPage">1</span></li>
+                                        <li class="page-item">
+                                            <button class="page-link" onclick="changePage(1)">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 评价指标 -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-star me-2 text-warning"></i>评价指标
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <canvas id="radarChart" height="250"></canvas>
+                            </div>
+
+                            <h6 class="mb-3">市场适应性评估</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>适宜销售区域</span>
+                                    <span class="badge bg-success">全国</span>
+                                </div>
+                                <small class="text-muted">基于品质特性推荐的最佳销售区域</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>储存期限</span>
+                                    <span class="badge bg-info">60 天</span>
+                                </div>
+                                <small class="text-muted">在适宜条件下的预计保质期</small>
+                            </div>
+
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>最佳食用时间</span>
+                                    <span class="badge bg-warning">7-14 天后</span>
+                                </div>
+                                <small class="text-muted">达到最佳口感和风味的时间窗口</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI模型性能 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-brain me-2 text-primary"></i>AI模型性能
+                            </h5>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-sync-alt me-1"></i>更新模型
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <canvas id="modelPerformanceChart" height="250"></canvas>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="row h-100">
+                                        <div class="col-md-12 col-lg-6 mb-3">
+                                            <div class="ai-model-card">
+                                                <h6>外观检测模型</h6>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">准确率</small>
+                                                    <small>95.3%</small>
+                                                </div>
+                                                <div class="model-accuracy">
+                                                    <div class="model-accuracy-bar bg-success" style="width: 95.3%"></div>
+                                                </div>
+                                                <div class="mt-3 small">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>迭代版本</span>
+                                                        <span>v3.2</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>样本量</span>
+                                                        <span>12,458</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 col-lg-6 mb-3">
+                                            <div class="ai-model-card">
+                                                <h6>光谱分析模型</h6>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">准确率</small>
+                                                    <small>92.0%</small>
+                                                </div>
+                                                <div class="model-accuracy">
+                                                    <div class="model-accuracy-bar bg-info" style="width: 92%"></div>
+                                                </div>
+                                                <div class="mt-3 small">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>迭代版本</span>
+                                                        <span>v2.8</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>样本量</span>
+                                                        <span>8,735</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 col-lg-6 mb-3">
+                                            <div class="ai-model-card">
+                                                <h6>保质期预测模型</h6>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">准确率</small>
+                                                    <small>88.7%</small>
+                                                </div>
+                                                <div class="model-accuracy">
+                                                    <div class="model-accuracy-bar bg-warning" style="width: 88.7%"></div>
+                                                </div>
+                                                <div class="mt-3 small">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>迭代版本</span>
+                                                        <span>v2.1</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>样本量</span>
+                                                        <span>6,842</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 col-lg-6 mb-3">
+                                            <div class="ai-model-card">
+                                                <h6>综合评级模型</h6>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">准确率</small>
+                                                    <small>93.5%</small>
+                                                </div>
+                                                <div class="model-accuracy">
+                                                    <div class="model-accuracy-bar bg-success" style="width: 93.5%"></div>
+                                                </div>
+                                                <div class="mt-3 small">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>迭代版本</span>
+                                                        <span>v3.0</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>样本量</span>
+                                                        <span>10,215</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // 检测结果饼图
+    const detectionCtx = document.getElementById('detectionPieChart').getContext('2d');
+    const detectionChart = new Chart(detectionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['优质', '轻微缺陷', '明显缺陷', '不合格'],
+            datasets: [{
+                data: [85, 10, 4, 1],
+                backgroundColor: [
+                    '#4CAF50',
+                    '#FFC107',
+                    '#FF9800',
+                    '#F44336'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+
+    // 光谱分析图表
+    const spectrumCtx = document.getElementById('spectrumChart').getContext('2d');
+    const spectrumChart = new Chart(spectrumCtx, {
+        type: 'line',
+        data: {
+            labels: ['900', '950', '1000', '1050', '1100', '1150', '1200', '1250', '1300', '1350', '1400', '1450', '1500', '1550', '1600'],
+            datasets: [
+                {
+                    label: '当前批次',
+                    data: [0.25, 0.28, 0.32, 0.35, 0.42, 0.48, 0.52, 0.58, 0.65, 0.68, 0.72, 0.78, 0.75, 0.72, 0.68],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '标准曲线',
+                    data: [0.24, 0.27, 0.31, 0.36, 0.40, 0.46, 0.51, 0.57, 0.63, 0.67, 0.70, 0.75, 0.73, 0.70, 0.66],
+                    borderColor: '#2196F3',
+                    borderDash: [5, 5],
+                    backgroundColor: 'rgba(33, 150, 243, 0)',
+                    tension: 0.3,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return context[0].label + ' nm';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: '反射率'
+                    },
+                    min: 0,
+                    max: 1
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '波长 (nm)'
+                    }
+                }
+            }
+        }
+    });
+
+    // 雷达图
+    const radarCtx = document.getElementById('radarChart').getContext('2d');
+    const radarChart = new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+            labels: ['外观', '糖度', '酸度', '风味', '硬度', '保质期'],
+            datasets: [{
+                label: '当前批次',
+                data: [90, 95, 85, 92, 88, 93],
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: '#4CAF50',
+                pointBackgroundColor: '#4CAF50',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#4CAF50'
+            }, {
+                label: '行业标准',
+                data: [80, 75, 80, 85, 80, 85],
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: '#2196F3',
+                pointBackgroundColor: '#2196F3',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#2196F3'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            elements: {
+                line: {
+                    borderWidth: 2
+                }
+            },
+            scales: {
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 50,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+
+    // 模型性能图表
+    const modelCtx = document.getElementById('modelPerformanceChart').getContext('2d');
+    const modelChart = new Chart(modelCtx, {
+        type: 'line',
+        data: {
+            labels: ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08', '2025-09', '2025-10'],
+            datasets: [
+                {
+                    label: '外观检测模型',
+                    data: [89.5, 90.2, 91.0, 92.5, 93.1, 93.8, 94.2, 94.8, 95.1, 95.3],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '光谱分析模型',
+                    data: [85.0, 86.3, 87.1, 88.0, 88.5, 89.2, 90.1, 90.8, 91.5, 92.0],
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '保质期预测模型',
+                    data: [82.3, 83.0, 83.8, 84.5, 85.2, 86.0, 86.8, 87.5, 88.2, 88.7],
+                    borderColor: '#FFC107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: '综合评级模型',
+                    data: [87.2, 88.0, 88.8, 89.5, 90.3, 91.0, 91.8, 92.5, 93.1, 93.5],
+                    borderColor: '#9C27B0',
+                    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: '准确率 (%)'
+                    },
+                    min: 80,
+                    max: 100
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '月份'
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script>
+    // 当前页码
+    let currentPage = 1;
+
+    // 函数：获取监测历史数据
+    async function fetchExamineHistory(pageNo) {
+        try {
+            const response = await fetch(`http://localhost:7070/quality/examineHistory?pageNo=${pageNo}`);
+            if (!response.ok) {
+                throw new Error('网络请求失败');
+            }
+            const data = await response.json();
+            if (data.code === 1) {
+                console.log(data)
+                const examineHistoryArray = data.data.examineHistoryArray || [];
+                displayExamineHistory(examineHistoryArray);
+                updatePageInfo(pageNo, examineHistoryArray.length);
+            } else {
+                console.error('获取监测历史失败:', data.message);
+                alert(`获取数据失败: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('请求监测历史时出错:', error);
+            alert('无法连接到服务器，请检查网络或服务器状态');
+        }
+    }
+
+    // 函数：显示监测历史数据
+    function displayExamineHistory(examineHistoryArray) {
+        const tbody = document.getElementById('examineHistoryBody');
+        tbody.innerHTML = ''; // 清空现有内容
+
+        if (examineHistoryArray.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">暂无数据</td></tr>';
+            return;
+        }
+
+        examineHistoryArray.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = 'result-item';
+            tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.product}</td>
+            <td>${item.time}</td>
+            <td>${item.sampleNumber}</td>
+            <td>${item.passRate}%</td>
+            <td><span class="badge ${getLevelBadge(item.level)}">${getLevelText(item.level)}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-download"></i>
+                </button>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 函数：将评级数字转换为文本
+    function getLevelText(level) {
+        switch (level) {
+            case 1: return '优质';
+            case 2: return '良好';
+            case 3: return '合格';
+            case 4: return '不合格';
+            default: return '未知';
+        }
+    }
+
+    // 函数：获取评级徽章类
+    function getLevelBadge(level) {
+        switch (level) {
+            case 1: return 'bg-success';
+            case 2: return 'bg-info';
+            case 3: return 'bg-warning';
+            case 4: return 'bg-danger';
+            default: return 'bg-secondary';
+        }
+    }
+
+    // 函数：更新分页信息
+    function updatePageInfo(pageNo, itemCount) {
+        const pageInfo = document.getElementById('pageInfo');
+        const start = (pageNo - 1) * 9 + 1;
+        const end = start + itemCount - 1;
+        pageInfo.textContent = `显示 ${start}-${end} 项`;
+        document.getElementById('currentPage').textContent = pageNo;
+
+        const prevButton = document.querySelector('.pagination .page-item:first-child');
+        const nextButton = document.querySelector('.pagination .page-item:last-child');
+        prevButton.classList.toggle('disabled', pageNo === 1);
+        nextButton.classList.toggle('disabled', itemCount < 9); // 少于9条认为无下一页
+    }
+
+    // 函数：切换页面
+    function changePage(delta) {
+        const newPage = currentPage + delta;
+        if (newPage < 1) return; // 防止页码小于1
+        currentPage = newPage;
+        fetchExamineHistory(currentPage);
+    }
+
+    // 初始化：获取第一页数据
+    fetchExamineHistory(currentPage);
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            const header = document.getElementById('header');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            if (!header || !sidebar || !mainContent) return;
+
+            // 获取导航栏高度
+            const nav = header.querySelector('.navbar');
+            const navHeight = nav ? nav.offsetHeight : header.offsetHeight;
+
+            // 定义正文内容的自定义顶部间距（向上调整）
+            const contentTopMargin = 34; // 将正文内容设置为距离顶部 20px，可调整
+
+            // 初始设置
+            sidebar.style.top = `${navHeight}px`; // 侧边栏位于导航栏下方
+            sidebar.style.height = `calc(100vh - ${navHeight}px)`;
+            mainContent.style.marginTop = `${contentTopMargin}px`; // 正文内容更靠近顶部
+
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > lastScrollTop && scrollTop > navHeight) {
+                    // 向下滚动且超过导航栏高度
+                    header.classList.add('header-hidden');
+                    sidebar.style.top = '0';
+                    sidebar.style.height = '100vh';
+                    mainContent.style.marginTop = '0';
+                } else {
+                    // 向上滚动或在顶部
+                    header.classList.remove('header-hidden');
+                    sidebar.style.top = `${navHeight}px`;
+                    sidebar.style.height = `calc(100vh - ${navHeight}px)`;
+                    mainContent.style.marginTop = `${contentTopMargin}px`;
+                }
+
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
+        }, 100);
+    });
+</script>
+<script>
+    loadFragment("header", "../templates/header_log.html");
+    loadFragment("sidebar", "../templates/sidebar.html");
+</script>
+</html>

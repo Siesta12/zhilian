@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓储管理</title>
+    <!-- Bootstrap 5 CSS -->
+    <!--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">-->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <script src="../scripts/loader.js"></script>
+    <style>
+        .sensor-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sensor-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .storage-item {
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .storage-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: var(--primary-color);
+        }
+
+        .storage-item.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .storage-item.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .warehouse-map {
+            position: relative;
+            height: 400px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .zone {
+            position: absolute;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #333;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .zone:hover {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transform: scale(1.02);
+        }
+
+        .zone-a {
+            top: 20px;
+            left: 20px;
+            width: 45%;
+            height: 45%;
+            background-color: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+
+        .zone-b {
+            top: 20px;
+            right: 20px;
+            width: 45%;
+            height: 40%;
+            background-color: rgba(33, 150, 243, 0.2);
+            border-color: #2196F3;
+        }
+
+        .zone-c {
+            bottom: 20px;
+            left: 20px;
+            width: 35%;
+            height: 45%;
+            background-color: rgba(255, 152, 0, 0.2);
+            border-color: #FF9800;
+        }
+
+        .zone-d {
+            bottom: 20px;
+            right: 20px;
+            width: 55%;
+            height: 50%;
+            background-color: rgba(156, 39, 176, 0.2);
+            border-color: #9C27B0;
+        }
+
+        .utilization-indicator {
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #4CAF50, #FFEB3B, #F44336);
+        }
+
+        .warehouse-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .warehouse-stat-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .controls-panel {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .weather-condition {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+            color: #FF9800;
+        }
+
+        .parameter-slider {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="header"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div id="sidebar" class="col-lg-2"></div>
+        <!-- 主要内容 -->
+        <div class="col-lg-10 py-4 px-4">
+            <div class="content-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-0">仓储管理</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">首页</a></li>
+                                <li class="breadcrumb-item active">仓储管理</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-warehouse me-1"></i> 1号仓库
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">1号仓库</a></li>
+                                <li><a class="dropdown-item" href="#">2号仓库</a></li>
+                                <li><a class="dropdown-item" href="#">3号仓库</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">管理仓库</a></li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-success">
+                            <i class="fas fa-plus me-1"></i> 新增库存
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 环境监测卡片 -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fas fa-thermometer-half me-2 text-success"></i>环境监测
+                            </h5>
+                            <div>
+                                <span class="badge bg-success me-2">所有系统正常</span>
+                                <span class="text-muted small">最后更新: 3分钟前</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card h-100 sensor-card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="sensor-icon bg-success bg-opacity-25 text-success">
+                                                    <i class="fas fa-temperature-high"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-muted mb-1">温度</h6>
+                                                    <h3 class="mb-0">23.2°C</h3>
+                                                    <div class="small text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>正常范围内
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span>适宜范围: 20°C - 25°C</span>
+                                                    <span>24小时变化: <span class="text-success">↓1.1°C</span></span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-success" role="progressbar"
+                                                         style="width: 65%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card h-100 sensor-card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="sensor-icon bg-info bg-opacity-25 text-info">
+                                                    <i class="fas fa-tint"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-muted mb-1">湿度</h6>
+                                                    <h3 class="mb-0">62%</h3>
+                                                    <div class="small text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>正常范围内
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span>适宜范围: 55% - 75%</span>
+                                                    <span>24小时变化: <span class="text-success">↑3%</span></span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-info" role="progressbar"
+                                                         style="width: 45%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card h-100 sensor-card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="sensor-icon bg-warning bg-opacity-25 text-warning">
+                                                    <i class="fas fa-wind"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-muted mb-1">CO₂浓度</h6>
+                                                    <h3 class="mb-0">410 ppm</h3>
+                                                    <div class="small text-success">
+                                                        <i class="fas fa-check-circle me-1"></i>正常范围内
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span>适宜范围: <500 ppm</span>
+                                                    <span>24小时变化: <span class="text-danger">↑15 ppm</span></span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-warning" role="progressbar"
+                                                         style="width: 38%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card h-100 sensor-card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="sensor-icon bg-danger bg-opacity-25 text-danger">
+                                                    <i class="fas fa-flask"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="text-muted mb-1">乙烯浓度</h6>
+                                                    <h3 class="mb-0">0.2 ppm</h3>
+                                                    <div class="small text-warning">
+                                                        <i class="fas fa-exclamation-circle me-1"></i>接近阈值
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span>适宜范围: <0.25 ppm</span>
+                                                    <span>24小时变化: <span class="text-danger">↑0.05 ppm</span></span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-danger" role="progressbar"
+                                                         style="width: 80%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 仓储空间分析和环境控制 -->
+            <div class="row mb-4">
+                <!-- 仓储空间利用 -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fas fa-cubes me-2 text-success"></i>仓储空间分析</h5>
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-expand-arrows-alt me-1"></i>空间优化建议
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="warehouse-map mb-4">
+                                <div class="zone zone-a">
+                                    <h5>A区</h5>
+                                    <div class="mb-1">苹果、梨</div>
+                                    <span class="badge bg-success">利用率: 85%</span>
+                                </div>
+                                <div class="zone zone-b">
+                                    <h5>B区</h5>
+                                    <div class="mb-1">橙子、柑橘</div>
+                                    <span class="badge bg-warning">利用率: 65%</span>
+                                </div>
+                                <div class="zone zone-c">
+                                    <h5>C区</h5>
+                                    <div class="mb-1">葡萄</div>
+                                    <span class="badge bg-danger">利用率: 45%</span>
+                                </div>
+                                <div class="zone zone-d">
+                                    <h5>D区</h5>
+                                    <div class="mb-1">混合水果</div>
+                                    <span class="badge bg-success">利用率: 90%</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h6>仓库总体利用率: 78.5%</h6>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="utilization-indicator flex-grow-1 me-3"></div>
+                                    <span class="badge bg-success">优</span>
+                                </div>
+
+                                <div class="warehouse-stats">
+                                    <div class="warehouse-stat-item">
+                                        <div class="small text-muted">总容量</div>
+                                        <div class="fw-bold">3,500 kg</div>
+                                    </div>
+                                    <div class="warehouse-stat-item">
+                                        <div class="small text-muted">已使用</div>
+                                        <div class="fw-bold">2,748 kg</div>
+                                    </div>
+                                    <div class="warehouse-stat-item">
+                                        <div class="small text-muted">可用空间</div>
+                                        <div class="fw-bold">752 kg</div>
+                                    </div>
+                                    <div class="warehouse-stat-item">
+                                        <div class="small text-muted">空间效率</div>
+                                        <div class="fw-bold">+23.5%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 环境控制面板 -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0"><i class="fas fa-sliders-h me-2 text-success"></i>环境控制</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="weather-condition mb-4">
+                                <div class="weather-icon">
+                                    <i class="fas fa-sun"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">当前外部环境</h6>
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <i class="fas fa-temperature-high me-1"></i> 26°C
+                                        </div>
+                                        <div class="me-3">
+                                            <i class="fas fa-tint me-1"></i> 58%
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-wind me-1"></i> 微风
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="controls-panel">
+                                <h6 class="mb-3">调节参数</h6>
+
+                                <div class="control-item">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="temp-control" class="form-label mb-0">温度控制</label>
+                                        <span>目标: 22.5°C</span>
+                                    </div>
+                                    <input type="range" class="form-range parameter-slider" min="16" max="30" step="0.5"
+                                           value="22.5" id="temp-control">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small">16°C</span>
+                                        <span class="small">30°C</span>
+                                    </div>
+                                </div>
+
+                                <div class="control-item">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="humidity-control" class="form-label mb-0">湿度控制</label>
+                                        <span>目标: 65%</span>
+                                    </div>
+                                    <input type="range" class="form-range parameter-slider" min="40" max="90" step="1"
+                                           value="65" id="humidity-control">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small">40%</span>
+                                        <span class="small">90%</span>
+                                    </div>
+                                </div>
+
+                                <div class="control-item">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label for="ventilation-control" class="form-label mb-0">通风强度</label>
+                                        <span>目标: 中等</span>
+                                    </div>
+                                    <input type="range" class="form-range parameter-slider" min="1" max="5" step="1"
+                                           value="3" id="ventilation-control">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small">最小</span>
+                                        <span class="small">最大</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <div class="d-flex mb-2">
+                                        <div class="form-check form-switch me-3">
+                                            <input class="form-check-input" type="checkbox" id="auto-control" checked>
+                                            <label class="form-check-label" for="auto-control">自动控制</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="energy-save">
+                                            <label class="form-check-label" for="energy-save">节能模式</label>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-success">
+                                            <i class="fas fa-save me-1"></i> 保存设置
+                                        </button>
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="fas fa-undo me-1"></i> 恢复默认
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 库存管理 -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fas fa-boxes me-2 text-success"></i>库存管理</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-filter me-1"></i> 筛选
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-download me-1"></i> 导出
+                                </button>
+                                <button class="btn btn-sm btn-success">
+                                    <i class="fas fa-plus me-1"></i> 新增
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>产品名称</th>
+                                        <th>批次号</th>
+                                        <th>库存量</th>
+                                        <th>入库日期</th>
+                                        <th>保质期</th>
+                                        <th>存储区域</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr class="storage-item">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success rounded-circle me-2"
+                                                     style="width: 10px; height: 10px;"></div>
+                                                <span>红富士苹果</span>
+                                            </div>
+                                        </td>
+                                        <td>SN20250316-A</td>
+                                        <td>850 kg</td>
+                                        <td>2025-03-16</td>
+                                        <td>2025-05-16</td>
+                                        <td>A区</td>
+                                        <td><span class="badge bg-success">良好</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="storage-item warning">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-warning rounded-circle me-2"
+                                                     style="width: 10px; height: 10px;"></div>
+                                                <span>金帅苹果</span>
+                                            </div>
+                                        </td>
+                                        <td>SN20250312-B</td>
+                                        <td>420 kg</td>
+                                        <td>2025-03-12</td>
+                                        <td>2025-03-27</td>
+                                        <td>A区</td>
+                                        <td><span class="badge bg-warning">临近保质期</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="storage-item">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success rounded-circle me-2"
+                                                     style="width: 10px; height: 10px;"></div>
+                                                <span>砀山梨</span>
+                                            </div>
+                                        </td>
+                                        <td>SN20250314-C</td>
+                                        <td>320 kg</td>
+                                        <td>2025-03-14</td>
+                                        <td>2025-04-14</td>
+                                        <td>A区</td>
+                                        <td><span class="badge bg-success">良好</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="storage-item">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-success rounded-circle me-2"
+                                                     style="width: 10px; height: 10px;"></div>
+                                                <span>赣南脐橙</span>
+                                            </div>
+                                        </td>
+                                        <td>SN20250315-D</td>
+                                        <td>480 kg</td>
+                                        <td>2025-03-15</td>
+                                        <td>2025-04-25</td>
+                                        <td>B区</td>
+                                        <td><span class="badge bg-success">良好</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="storage-item danger">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-danger rounded-circle me-2"
+                                                     style="width: 10px; height: 10px;"></div>
+                                                <span>阳光玫瑰葡萄</span>
+                                            </div>
+                                        </td>
+                                        <td>SN20250310-E</td>
+                                        <td>150 kg</td>
+                                        <td>2025-03-10</td>
+                                        <td>2025-03-20</td>
+                                        <td>C区</td>
+                                        <td><span class="badge bg-danger">已预警</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted">显示 1-5 项，共 18 项</span>
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 能耗分析 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="fas fa-bolt me-2 text-warning"></i>能耗分析</h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary active">日</button>
+                                <button type="button" class="btn btn-outline-secondary">周</button>
+                                <button type="button" class="btn btn-outline-secondary">月</button>
+                                <button type="button" class="btn btn-outline-secondary">年</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <canvas id="energyChart" height="250"></canvas>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card mb-3">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <h6 class="text-muted mb-1">今日能耗</h6>
+                                                    <h4 class="mb-0">58.2 kWh</h4>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-success me-2">-12.5%</span>
+                                                    <i class="fas fa-arrow-down text-success"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card mb-3">
+                                        <div class="card-body py-3">
+                                            <h6 class="text-muted mb-3">能耗分布</h6>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>制冷设备</span>
+                                                    <span>65%</span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-primary" style="width: 65%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>加湿/除湿</span>
+                                                    <span>18%</span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-info" style="width: 18%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>通风系统</span>
+                                                    <span>12%</span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-success" style="width: 12%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span>其他</span>
+                                                    <span>5%</span>
+                                                </div>
+                                                <div class="progress" style="height: 5px;">
+                                                    <div class="progress-bar bg-warning" style="width: 5%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer"></div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // 能耗图表
+    const energyCtx = document.getElementById('energyChart').getContext('2d');
+    const energyChart = new Chart(energyCtx, {
+        type: 'bar',
+        data: {
+            labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+            datasets: [
+                {
+                    label: '实际能耗 (kWh)',
+                    data: [4.8, 4.3, 5.1, 8.7, 7.9, 8.2, 10.5, 8.7],
+                    backgroundColor: '#4CAF50',
+                    order: 2
+                },
+                {
+                    label: '预计能耗 (kWh)',
+                    data: [5.5, 5.2, 5.8, 9.8, 9.2, 9.5, 11.8, 9.8],
+                    type: 'line',
+                    borderColor: '#FF9800',
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '能耗 (kWh)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+<script>
+    loadFragment("header", "../templates/header_log.html");
+    loadFragment("sidebar", "../templates/sidebar.html");
+</script>
+</html>

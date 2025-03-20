@@ -1,0 +1,214 @@
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2E7D32;
+    --accent-color: #8BC34A;
+    --light-color: #F1F8E9;
+    --dark-color: #1B5E20;
+    --warning-color: #FFC107;
+    --danger-color: #F44336;
+    --info-color: #2196F3;
+}
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand,
+.nav-link {
+    color: white !important;
+}
+
+.nav-link:hover {
+    color: var(--light-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-success {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.auth-container {
+    max-width: 500px;
+    margin: 80px auto;
+}
+
+.auth-card {
+    padding: 30px;
+    background: white;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+}
+
+.footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    margin-top: auto;
+    border-top: 1px solid #e9ecef;
+}
+
+.main-container {
+    flex: 1;
+}
+
+/* Dashboard styles */
+.sidebar {
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    height: calc(100vh - 56px);
+    position: sticky;
+    top: 56px;
+    padding-top: 1rem;
+    z-index: 100;
+}
+
+.sidebar-link {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    padding: 12px 20px;
+    border-left: 3px solid transparent;
+    transition: all 0.3s;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+    background-color: var(--light-color);
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sidebar-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.content-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--primary-color);
+    height: 100%;
+}
+
+.stat-card h3 {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.stat-card p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.stat-icon {
+    font-size: 40px;
+    color: var(--primary-color);
+    opacity: 0.8;
+}
+
+/* 卡片动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-card {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: white;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+#transactionChart {
+    max-height: 200px;
+}
+
+#detectionPieChart, #spectrumChart {
+    max-height: 200px;
+}

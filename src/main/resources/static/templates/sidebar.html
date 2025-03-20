@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/base.css">
+    <script src="../scripts/sidebar.js"></script>
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 56px; /* 初始位置为 header 的假设高度，动态调整 */
+            left: 0;
+            width: 250px;
+            height: calc(100vh - 56px); /* 初始高度 */
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding-top: 1rem;
+            transition: top 0.3s ease; /* 与 header 动画一致 */
+            z-index: 999; /* 低于 header */
+        }
+        .sidebar-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #333;
+            text-decoration: none;
+        }
+        .sidebar-link:hover {
+            background-color: #e9ecef;
+        }
+        .sidebar-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+<!-- 侧边栏 -->
+<div class="sidebar">
+    <div class="px-3 mb-3">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-circle text-success me-2" style="font-size: 2rem;"></i>
+            <div>
+                <h6 class="mb-0" id="username">加载中...</h6>
+                <small class="text-muted">管理员</small>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <a href="../views/dashboard.html" class="sidebar-link">
+        <i class="fas fa-tachometer-alt"></i> 数据概览
+    </a>
+    <a href="../views/warehouse.html" class="sidebar-link active">
+        <i class="fas fa-warehouse"></i> 仓储管理
+    </a>
+    <a href="../views/quality.html" class="sidebar-link">
+        <i class="fas fa-microscope"></i> 质量监测
+    </a>
+    <a href="../views/logistic.html" class="sidebar-link">
+        <i class="fas fa-truck"></i> 物流配送
+    </a>
+    <a href="#" class="sidebar-link">
+        <i class="fas fa-store"></i> 电商管理
+    </a>
+    <a href="#" class="sidebar-link">
+        <i class="fas fa-chart-bar"></i> 数据分析
+    </a>
+    <a href="#" class="sidebar-link">
+        <i class="fas fa-users"></i> 用户管理
+    </a>
+    <a href="#" class="sidebar-link">
+        <i class="fas fa-cog"></i> 系统设置
+    </a>
+    <hr>
+    <a href="../views/index.html" class="sidebar-link text-danger">
+        <i class="fas fa-sign-out-alt"></i> 退出登录
+    </a>
+</div>
+</body>
+</html>
